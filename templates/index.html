@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Weather App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <style>
+    .bg-orange {
+      background-color: #fd7e14 !important;
+    }
+    </style>
+</head>
+<body class="bg-info text-white">
+    <div class="text-center">
+        <h1 class="mt-5">Weather App</h1>
+        <form action="/" method="post">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm">
+                        <input type="text" id="cityName" name="cityName" placeholder="City" class="form-control" value="{{ city }}">
+                    </div>
+                    <div class="col-sm">
+                        <input type="text" id="stateName" name="stateName" placeholder="State" class="form-control" value="{{ state }}">
+                    </div>
+                    <div class="col-sm">
+                        <input type="text" id="countryName" name="countryName" placeholder="Country" class="form-control" value="{{ country }}">
+                    </div>
+                </div>    
+            </div> <br>
+            <button class="submit btn btn-light">Find</button>
+        </form>
+        {% if data %}
+        <div class="mt-4 d-flex flex-column align-items-center justify-content-center">
+            <img src="https://openweathermap.org/img/wn/{{data.current.icon}}@4x.png" alt="Icon" style="width:100px;">
+            <div class="display-4 fw-bold">{{ data.current.temperature }}&deg;C</div>
+            <div class="text-capitalize fs-5 mt-2">{{ data.current.description }}</div>
+        </div>
+        {% endif %}
+    </div>
+    {% if data.location_name %}
+        <h5 class="mt-2 text-center">{{ data.location_name }}</h5>
+    {% endif %}
+{% if data.pollution %}
+<div class="mt-5">
+    <h5 class="text-center mb-3">Air Quality</h5>
+
+    <!-- AQI Badge centered -->
+    <div class="d-flex justify-content-center mb-3">
+        <span class="badge 
+            {% if data.pollution.aqi == 1 %} bg-success 
+            {% elif data.pollution.aqi == 2 %} bg-info 
+            {% elif data.pollution.aqi == 3 %} bg-warning text-dark 
+            {% elif data.pollution.aqi == 4 %} bg-orange text-white 
+            {% elif data.pollution.aqi == 5 %} bg-danger 
+            {% endif %}
+            fs-6 p-2">
+            AQI: 
+            {% if data.pollution.aqi == 1 %} Good
+            {% elif data.pollution.aqi == 2 %} Fair
+            {% elif data.pollution.aqi == 3 %} Moderate
+            {% elif data.pollution.aqi == 4 %} Poor
+            {% elif data.pollution.aqi == 5 %} Very Poor
+            {% endif %}
+        </span>
+    </div>
+
+    <div class="d-flex justify-content-center flex-wrap gap-3 px-2">
+        <div class="text-center bg-white text-dark p-2 rounded shadow-sm" style="min-width: 100px;">
+            <div class="fw-bold" title="Fine particles that penetrate lungs easily">PM2.5</div>
+            {{ data.pollution.pm2_5 }} µg/m³
+        </div>
+        <div class="text-center bg-white text-dark p-2 rounded shadow-sm" style="min-width: 100px;">
+            <div class="fw-bold" title="Inhalable particles, affects respiratory system">PM10</div>
+            {{ data.pollution.pm10 }} µg/m³
+        </div>
+        <div class="text-center bg-white text-dark p-2 rounded shadow-sm" style="min-width: 100px;">
+            <div class="fw-bold" title="Carbon Monoxide – reduces oxygen in body">CO</div>
+            {{ data.pollution.co }} µg/m³
+        </div>
+        <div class="text-center bg-white text-dark p-2 rounded shadow-sm" style="min-width: 100px;">
+            <div class="fw-bold" title="Nitrogen Dioxide – inflames airways">NO₂</div>
+            {{ data.pollution.no2 }} µg/m³
+        </div>
+        <div class="text-center bg-white text-dark p-2 rounded shadow-sm" style="min-width: 100px;">
+            <div class="fw-bold" title="Sulfur Dioxide – causes breathing issues">SO₂</div>
+            {{ data.pollution.so2 }} µg/m³
+        </div>
+        <div class="text-center bg-white text-dark p-2 rounded shadow-sm" style="min-width: 100px;">
+            <div class="fw-bold" title="Ozone – affects lungs and eyes">O₃</div>
+            {{ data.pollution.o3 }} µg/m³
+        </div>
+    </div>
+</div>
+{% endif %}
+{% if data and data.hourly %}
+<h3 class="mt-5 mb-3 text-center">Hourly Forecast</h3>
+<div class="d-flex justify-content-center overflow-auto gap-3 px-2 pb-2">
+    {% for hour in data.hourly %}
+    <div class="text-center bg-white text-dark p-3 rounded shadow-sm" style="min-width: 100px;">
+        <div style="font-weight: bold;">{{ hour.time }}</div>
+        <img src="https://openweathermap.org/img/wn/{{hour.icon}}@2x.png" alt="Icon" style="width:50px;">
+        <div style="font-size: 1.2rem;">{{ hour.temperature }}&deg;C</div>
+        <div class="text-capitalize" style="font-size: 0.9rem;">{{ hour.main }}</div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% if data and data.forecast %}
+<h3 class="mt-5 mb-3 text-center">3-Day Forecast</h3>
+<div class="d-flex justify-content-center flex-wrap gap-3">
+    {% for day in data.forecast %}
+    <div class="p-3 rounded bg-white text-dark shadow-sm" style="min-width: 150px; width: 160px;">
+        <div class="text-muted" style="font-size: 0.9rem;">{{ day.date }}</div>
+        <img src="https://openweathermap.org/img/wn/{{day.icon}}@2x.png" alt="Icon" style="width: 60px; height: 60px;">
+        <div style="font-size: 1.5rem; font-weight: bold;">{{ day.temperature }}&deg;C</div>
+        <div class="text-capitalize" style="font-size: 0.95rem;">{{ day.description }}</div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+    <script>
+    const tooltipTriggerList = document.querySelectorAll('[title]')
+    tooltipTriggerList.forEach(el => {
+        new bootstrap.Tooltip(el)
+    });
+    </script>
+    <script>
+    window.addEventListener('load', () => {
+        if (!sessionStorage.getItem("locationLoaded")) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    fetch('/weather-by-coords', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ lat, lon })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.city && data.country) {
+                            document.getElementById('cityName').value = data.city;
+                            document.getElementById('stateName').value = data.state || '';
+                            document.getElementById('countryName').value = data.country;
+                            sessionStorage.setItem("locationLoaded", "true");
+                            document.querySelector('form').submit();
+                        }
+                    });
+                });
+            }
+        }
+    });
+    </script>
+</body>
+</html>
